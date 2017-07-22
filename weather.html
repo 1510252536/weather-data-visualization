@@ -1,0 +1,856 @@
+<!DOCTYPE HTML>
+
+<html>
+	<head>
+		<title>全国天气情况</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<link rel="stylesheet" href="assets/css/rangeslider.css" />
+		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+		<style type="text/CSS">
+            input[type="range"] {
+                -webkit-box-shadow: 0 1px 0 0px #424242, 0 1px 0 #060607 inset, 0px 2px 10px 0px black inset, 1px 0px 2px rgba(0, 0, 0, 0.4) inset, 0 0px 1px rgba(0, 0, 0, 0.6) inset;
+                margin-top: 2px;
+                background-color: #5b5b5b;
+                border-radius: 15px;
+                width: 150px;
+                -webkit-appearance: none;
+                height:10px;
+            }
+            input[type="range"]::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                cursor: default;
+                top: 10px;
+                height: 20px;
+                width: 10px;
+                transform: translateY(-4px);
+                background: none repeat scroll 0 0 #777;
+                border-radius: 15px;
+                -webkit-box-shadow: 0 -1px 1px black inset;
+            }
+        </style>
+	</head>
+	<body>
+
+		<!-- Header -->
+			<header id="header">
+
+				<!-- Logo -->
+					<h1 id="logo">全国各省市县2015年12月实时天气数据</h1>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul>
+							<form id = "dimen"  >
+							观测维度：
+							<input type="radio" name="weather" value="wen" checked onclick = "submit_dimen()">温度(℃)
+							<input type="radio" name="weather" value="shi" onclick = "submit_dimen()">湿度(相对湿度)
+							<input type="radio" name="weather" value="jiang" onclick = "submit_dimen()">降雨(mm)
+							<input type="radio" name="weather" value="feng" onclick = "submit_dimen()">风力(m/s)
+							</form> 
+						</ul>
+					</nav>
+
+			</header>
+
+
+
+		<!-- Intro -->
+			<section id="intro" class="main style1 dark fullscreen">
+				<div class="content container 100%">
+					
+
+					<div style = "position:absolute;right:-3em;top:-15em;">
+					<form id = "step"  >
+					<strong>时间跨度：</strong>
+					<input type="radio" name="time_step" value="hour" checked onclick = "submit_step()"><strong>小时</strong>
+					<input type="radio" name="time_step" value="day" onclick = "submit_step()"><strong>天</strong>
+					</form> 
+					</div>
+
+					<div style = "position:absolute;right:-4em;top:-2em;">
+ 					<strong>日期:  </strong>
+					<input type="text" id="set_day"  SIZE="29" onmouseover="this.style.borderColor='black';this.style.backgroundColor='#ffffff'"  style="width: 40px; height: 25px"  onmouseout="this.style.borderColor='white';this.style.backgroundColor='#ffffff'" style="border-width:1px;border-color=black"><strong>日</strong>
+					<input type="text" id="set_hour"  SIZE="29" onmouseover="this.style.borderColor='black';this.style.backgroundColor='#ffffff'"  style="width: 40px; height: 25px"  onmouseout="this.style.borderColor='white';this.style.backgroundColor='#ffffff'" style="border-width:1px;border-color=black"><strong>时</strong>
+					<input type="button" value = "确定" onclick = "setTime()">
+					</div> 
+
+					<div style = "position:absolute;right:-4em;top:-13em;">
+					<strong>调节速度：</strong><input type="range" name="points" min="1" max="10" value="5" id="speed" onmousemove="submit_speed()"/>
+					</div>
+
+					<div style = "position:absolute;right:28em;top:13em;">
+					<input type="button" value = "开始/暂停" onclick = "exchange()">
+					<input type="button" value = "返回" onclick = "back()">
+					</div>
+
+					<div style = "position:absolute;left:-4em;top:-15em;">
+					<strong id = "time">时间：2015年 12月 1日 0时</strong>
+					</div>
+					<div style = "position:absolute;left:-4em;top:-13em;">
+					<strong id = "range">范围：全国</strong>
+					</div>
+					<div style = "position:absolute;left:-4em;top:-11em;">
+					<strong id = "area">选中地区：</strong>
+					</div>
+					<div style = "position:absolute;left:-4em;top:-9em;">
+					<strong id = "current">当前数据：</strong>
+					</div>
+
+					<div style = "position:absolute;left:-4em;top:-2em;">
+					<span id = "min">-40 </span>
+						<svg id = "gradient" width = "100" height = "20" >
+						 	<defs>  
+						        <linearGradient id="one" x1="0%" y1="0%" x2="100%" y2="0%">  
+						            <stop offset="0%" style="stop-color: #ffffff;"/>  
+						            <stop offset="100%" style="stop-color: #ff0000;"/>  
+						        </linearGradient>
+						         <linearGradient id="two" x1="0%" y1="0%" x2="100%" y2="0%">  
+						            <stop offset="0%" style="stop-color: #ffffff;"/>  
+						            <stop offset="100%" style="stop-color: #0000ff;"/>  
+						        </linearGradient>
+						         <linearGradient id="three" x1="0%" y1="0%" x2="100%" y2="0%">  
+						            <stop offset="0%" style="stop-color: #ffffff;"/>  
+						            <stop offset="100%" style="stop-color: #00ff00;"/>  
+						        </linearGradient>
+						         <linearGradient id="four" x1="0%" y1="0%" x2="100%" y2="0%">  
+						            <stop offset="0%" style="stop-color: #ffffff;"/>  
+						            <stop offset="100%" style="stop-color: #ffff00;"/>  
+						        </linearGradient>
+						        <linearGradient id="red" xlink:href="#one" spreadMethod="pad"/>  
+						        <linearGradient id="blue" xlink:href="#two" spreadMethod="pad"/>  
+						        <linearGradient id="green" xlink:href="#three" spreadMethod="pad"/>  
+						        <linearGradient id="yellow" xlink:href="#four" spreadMethod="pad"/>  
+						    </defs>  
+						    <rect id = "rect" x="0" y="0" width="100" height="20" style="fill: url(#red);stroke: black"/>  
+						</svg>
+						<span id = "max">32  </span>
+
+			    <div style = "position:absolute;left:2em;top:-15em;">
+				<svg id = "country" width = "500" height = "500" ><g></g></svg>
+				<svg id = "province" width = "500" height = "500" style = "display:none;" ><g></g></svg>
+				<svg id = "town" width = "500" height = "500" style = "display:none;" ><g></g></svg>
+				</div>
+
+						
+
+					</div>
+				</div>
+			</section>
+
+		
+
+<script src="socket.io-1.4.5.js"></script>   
+<script src="d3.v3.min.js"></script>
+<script>
+	var width  = 1000;
+	var height = 1000;
+
+	var palegreen = d3.rgb(255,255,255);  
+	var darkgreen = d3.rgb(0,255,0);
+	var color_green = d3.interpolate(palegreen,darkgreen);
+	var paleblue = d3.rgb(255,255,255);  
+	var darkblue = d3.rgb(0,0,255);
+	var color_blue =  d3.interpolate(paleblue,darkblue);
+	var palered = d3.rgb(255,255,255);  
+	var darkred = d3.rgb(255,0,0);
+	var color_red =  d3.interpolate(palered,darkred);
+	var paleyellow = d3.rgb(255,255,255);  
+	var darkyellow = d3.rgb(255,255,0);
+	var color_yellow =  d3.interpolate(paleyellow,darkyellow);
+
+	var color_country = color_red;
+	var color_province = color_red;
+	var color_town = color_red;
+
+	var ini_min = 0;
+	var ini_max = 500;
+	var min = 500;
+	var max = -500;
+	var old_min = 500;
+	var old_max = -500;
+	var linear = d3.scale.linear().domain([ini_min,ini_max]).range([0,1]);
+
+	var gradient= d3.select("#gradient");
+	var country= d3.select("#country");
+	var province = d3.select("#province");
+	var town = d3.select("#town");
+	
+	var projection = d3.geo.mercator()
+						.center([107, 31])
+						.scale(850)
+    					.translate([width/2, height/2]);
+
+	
+	var path = d3.geo.path()
+					.projection(projection);
+
+	var ini_record;
+	var para = undefined; 
+
+	var state = 0;
+	var level = 1;
+
+	var during = 1000;
+
+	var step = "hour";	
+	var now = 2015120100;
+	var last = 2015120100;
+	var dimen = "wen";
+	var area = "全国";
+
+	var nowData = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+	var nextData = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+
+	var indexMax = 0;
+	var index = -1;
+
+	var numTest = 0;
+	var numTest2 = 0;
+
+	var connection = io.connect('http://localhost:8888');   
+	            	
+
+	connection.on('message', function(data){ 	
+
+		if(data!= null && data!= undefined){
+
+
+
+			var nowName = area[0]+area[1];
+			if(nowName != data.name)
+				return;
+
+			var datas = data.res;
+			console.log(datas);
+
+			var maxTem = -1000;
+		    var minTem = 1000;
+
+			var i = 0;
+	 		var j = 0;
+	 		var base = new Array();
+	 		for(i = 0;i<indexMax;i++)
+	 		{
+
+		 		var temName;
+
+		 		if(level == 1)
+		        	temName = country.select(".cla"+i).attr("name");
+		        else if(level == 2)
+		        	temName = province.select(".cla"+i).attr("name");
+		        else
+		        	temName = town.select(".cla"+i).attr("name");
+		 		temName =temName[0]+temName[1];
+				for(j = 0;j < datas.length;j++)
+		        {
+		        	
+		        	var temName2;
+		        	if(level == 1)
+		        		temName2 = datas[j].省[0] + datas[j].省[1];
+		        	else if(level == 2)
+		        		temName2 = datas[j].市[0] + datas[j].市[1];
+		        	else
+		        		temName2 = datas[j].县[0] + datas[j].县[1];
+
+		            if(temName2 == temName)
+		            {
+		            	break;
+		            }
+		            			
+		        } 
+
+		        if(j == datas.length)
+		        {
+
+		        	base[i] = para;	
+		        }
+		        else
+		        {
+		        	if(dimen == "wen")
+		        		base[i] = datas[j].温度;
+		        	else if(dimen == "shi")
+		        		base[i] = datas[j].湿度;
+		        	else if(dimen == "jiang")
+		        		base[i] = datas[j].降水量;
+		        	else
+		        		base[i] = datas[j].风力;
+
+
+		        	if(base[i] > maxTem)
+		        		maxTem = base[i];
+		        	if(base[i] < minTem)
+		        		minTem = base[i];	
+		        }
+		    
+		       
+		 	}
+
+	 	    if(dimen == "wen")
+	 	    {
+	 	    	max = maxTem + 2;
+		        min = minTem - 2;
+		        if(max - min < 10)
+		        {
+		        	var tem = (10 - (max - min))*0.5;
+		        	max += tem;
+		        	min -= tem;
+		        }
+	 	    }
+	        else if(dimen == "shi")
+	        {
+	        	max = maxTem + 4;
+		        min = minTem - 4;
+		        if(max - min < 20)
+		        {
+		        	var tem = (20 - (max - min))*0.5;
+		        	max += tem;
+		        	min -= tem;
+		        }
+	        }
+	        else if(dimen == "feng")
+	        {
+	        	max = maxTem + 1;
+		        min = minTem - 1;
+	        }
+	        else
+	        {
+	        	max = maxTem + 0.1;
+		        min = minTem - 0.1;
+		      
+	        }
+	       
+
+	        if(dimen == "feng" || dimen == "shi" || dimen == "jiang")
+	        {
+	        	if(min <= 0)
+	        	{
+	        		min = 0;
+	        	}
+	        }
+	        
+	        console.log(min);
+	        console.log(max);
+		    linear = d3.scale.linear().domain([old_min,old_max]).range([0,1]);
+		    
+		    document.getElementById("min").innerHTML = ""+old_min;
+			document.getElementById("max").innerHTML = ""+old_max;
+			
+			old_min = min;
+		    old_max = max;
+
+		 	nowData = nextData;
+			nextData = base;
+
+			console.log(nextData);
+			console.log("e"+(numTest++));
+		}
+		
+	}); 
+
+
+
+
+	d3.json("china2.json", function(error, root) {
+		
+		if (error) 
+			return console.error(error);
+		
+		country.attr("name","全国")
+			.selectAll("path")
+			.data( root.features )
+			.enter()
+			.append("path")
+			.attr("stroke","#000")
+			.attr("stroke-width",1)
+			.attr("fill", function(d,i){
+				return color_country(linear(Math.random()*500));
+			})
+			.attr("id",function(d){
+				return d.properties.id;
+			})
+			.attr("name",function(d){
+				return d.properties.name;
+			})
+			.attr("cp0",function(d){
+				return d.properties.cp[0];
+			})
+			.attr("cp1",function(d){
+				return d.properties.cp[1];
+			})
+			.attr("class",function(d,i){
+				index++;
+				var res = "cla"+index;
+				return res;
+			})
+			.attr("d", path )
+			.on("mouseover",function(d,i){
+				ini_record =  d3.select(this).attr("fill");
+                d3.select(this)
+                    .attr("fill","yellow");       
+                document.getElementById("area").innerHTML = "选中地区：" + d3.select(this).attr("name"); 
+                document.getElementById("current").innerHTML = "当前数据：" + nowData[i];  
+            })
+            .on("mouseout",function(d,i){
+                d3.select(this)
+                    .attr("fill",ini_record);
+                 document.getElementById("area").innerHTML = "选中地区：";
+                 document.getElementById("current").innerHTML = "当前数据：";
+            })
+            .on("click",function(d,i){
+            	
+            
+            	var id = d3.select(this).attr("id");
+            	var cp0 = d3.select(this).attr("cp0");
+            	var cp1 = d3.select(this).attr("cp1");
+            	var name = d3.select(this).attr("name");
+
+            	var projectionTem = d3.geo.mercator()
+					.center([cp0,cp1])
+					.scale(2000)
+    				.translate([width/2, height/2]);
+    			var pathTem = d3.geo.path()
+					.projection(projectionTem);
+				var route = "mapdata/geometryProvince/"+ id +".json";
+
+				document.getElementById("range").innerHTML = "范围：" + name;
+
+            	d3.json(route, function(error, root) {
+		
+					if (error) 
+						return console.error(error);
+						
+					province.selectAll("path").remove();
+					province.attr("name",name)
+						.selectAll("path")
+						.data( root.features )
+						.enter()
+						.append("path")
+						.attr("stroke","#000")
+						.attr("stroke-width",1)
+						.attr("fill", function(d,i){
+							return color_province(linear(Math.random()*500));
+						})
+						.attr("id",function(d){
+							return d.properties.id;
+						})
+						.attr("name",function(d){
+							return d.properties.name;
+						})
+						.attr("class",function(d,i){
+							index++;
+							var res = "cla"+index;
+							return res;
+						})
+						.attr("cp0",function(d){
+							return d.properties.cp[0];
+						})
+						.attr("cp1",function(d){
+							return d.properties.cp[1];
+						})
+						.attr("d", pathTem)
+						.on("mouseover",function(d,i){
+								ini_record =  d3.select(this).attr("fill");
+				                d3.select(this).attr("fill","yellow");    
+				                document.getElementById("area").innerHTML = "选中地区：" + d3.select(this).attr("name");
+				                document.getElementById("current").innerHTML = "当前数据：" + nowData[i];
+      
+				        })
+				        .on("mouseout",function(d,i){
+				            d3.select(this).attr("fill",ini_record);
+				            document.getElementById("area").innerHTML = "选中地区：";
+				            document.getElementById("current").innerHTML = "当前数据：";
+				        })
+				        .on("click",function(d,i){
+				            	
+				            var id = d3.select(this).attr("id");
+				            var cp0 = d3.select(this).attr("cp0");
+				            var cp1 = d3.select(this).attr("cp1");
+				            var name = d3.select(this).attr("name");
+
+				            var projectionTem = d3.geo.mercator()
+													.center([cp0,cp1])
+													.scale(4000)
+				    								.translate([width/2, height/2]);
+				    		var pathTem = d3.geo.path()
+											.projection(projectionTem);
+							var route = "mapdata/geometryCouties/"+ id +"00.json";
+
+							document.getElementById("range").innerHTML = "范围：" + name;
+								
+				            d3.json(route, function(error, root) {
+						
+								if (error) 
+									return console.error(error);
+									
+								town.selectAll("path").remove();
+								town.attr("name",name)
+									.selectAll("path")
+									.data( root.features )
+									.enter()
+									.append("path")
+									.attr("stroke","#000")
+									.attr("stroke-width",1)
+									.attr("fill", function(d,i){
+										return color_town(linear(Math.random()*500));
+									})
+									.attr("id",function(d){
+										return d.properties.id;
+									})
+									.attr("name",function(d){
+										return d.properties.name;
+									})
+									.attr("class",function(d,i){
+										index++;
+										var res = "cla"+index;
+										return res;
+									})
+									.attr("d", pathTem )
+									.on("mouseover",function(d,i){
+										ini_record =  d3.select(this).attr("fill");
+								        d3.select(this)
+								            .attr("fill","yellow");
+								        document.getElementById("area").innerHTML = "选中地区：" + d3.select(this).attr("name");      
+								        document.getElementById("current").innerHTML = "当前数据：" + nowData[i];
+								    })
+								    .on("mouseout",function(d,i){
+								      	d3.select(this)
+								            .attr("fill",ini_record);
+								        document.getElementById("area").innerHTML = "选中地区：";
+								        document.getElementById("current").innerHTML = "当前数据：";
+								    });
+
+							});
+							d3.select("body").select("#province").style("display","none");
+				            d3.select("body")
+				            	.select("#town")
+				            	.style("display","block")
+
+				            level = 3;
+				            if(state == 1)
+				            {
+				            	clearInterval(time);
+								state = 0;
+				            }
+				            indexMax = index + 1;
+							index = -1;
+							area = name;
+							connection.send({area:area,time:now,level:level,dimen:dimen});
+	
+				        });
+					
+				  
+				});
+				d3.select("body").select("#country").style("display","none");
+            	d3.select("body")
+            		.select("#province")
+            		.style("display","block")
+
+            	level = 2;
+            	if(state == 1)
+            	{
+            		clearInterval(time);
+					state = 0;
+            	}
+            	indexMax = index + 1;
+				index = -1;
+				area = name;
+				connection.send({area:area,time:now,level:level,dimen:dimen});
+	
+            });
+			indexMax = index + 1;
+			index = -1;
+			area = name;
+			connection.send({area:area,time:now,level:level,dimen:dimen});
+	
+		
+	});
+
+
+
+
+	function draw_country()
+	{ 	
+		
+		pass();
+		document.getElementById("time").innerHTML = "时间：2015年 12月 " + parseInt(last/100)%100 + "日 "+ last%100 +"时";
+		connection.send({area:area,time:now,level:level,dimen:dimen});
+		console.log("d"+(numTest2++));
+		country.selectAll("path")
+		    .transition()
+	        .delay(during*0.2)
+	        .duration(during*0.8)
+	        .ease("linear")
+	        .attr("fill", function(d,i){
+				return color_country(linear(nowData[i]));
+			});
+		
+	}
+
+	function draw_province()
+	{
+		pass();
+	 	document.getElementById("time").innerHTML = "时间：2015年 12月 " + parseInt(last/100)%100 + "日 "+ last%100 +"时";
+	 	connection.send({area:area,time:now,level:level,dimen:dimen});
+	 	console.log("d"+(numTest2++));
+	 	province.selectAll("path")
+			    .transition()
+	            .delay(during*0.2)
+	            .duration(during*0.8)
+	            .ease("linear")
+	            .attr("fill", function(d,i){
+	            	return color_province(linear(nowData[i]));
+				});
+	}
+
+
+
+	function draw_town()
+	{
+	 	pass();
+	 	document.getElementById("time").innerHTML = "时间：2015年 12月 " + parseInt(last/100)%100 + "日 "+ last%100 +"时";
+	 	connection.send({area:area,time:now,level:level,dimen:dimen});
+	 	console.log("d"+(numTest2++));
+	 	town.selectAll("path")
+			    .transition()
+	            .delay(during*0.2)
+	            .duration(during*0.8)
+	            .ease("linear")
+	            .attr("fill", function(d,i){
+	            	return color_town(linear(nowData[i]));
+				});
+		
+	 }
+
+
+
+
+	function exchange()
+	{
+		if(state == 1)
+		{
+			clearInterval(time);
+			state = 0;
+		}
+		else if(level == 1)
+		{	
+			time =  setInterval(draw_country,during);
+			state = 1;
+		}
+		else if(level == 2)
+		{
+			time =  setInterval(draw_province,during);
+			state = 1;
+		}
+		else if(level == 3)
+		{
+			time =  setInterval(draw_town,during);
+			state = 1;
+		}
+		
+	}
+
+	function submit_speed(){
+		var speed = document.getElementById("speed").value;
+		exchange();
+		during = 500 + 50*(10 - speed);
+		exchange();
+	}
+
+	function back()
+	{
+		if(level == 2)
+		{
+			level = 1;
+			d3.select("body")
+	            .select("#province")
+	            .style("display","none")
+	            	
+			d3.select("body").select("#country").style("display","block");
+			linear = d3.scale.linear().domain([ini_min,ini_max]).range([0,1]);
+	        country.selectAll("path")
+		        .attr("fill", function(d,i){
+					return color_country(linear(Math.random()*500));
+				})	
+				.attr("class",function(d,i){
+					index++;
+					var res = "cla"+index;
+					return res;
+				});
+			indexMax = index + 1;
+			index = -1;
+
+			document.getElementById("range").innerHTML = "范围：全国";
+			area = d3.select("#country").attr("name");
+	        
+	        if(state == 1)
+            {
+            	clearInterval(time);
+				state = 0;
+            }
+   		}
+   		else if(level == 3)
+   		{
+   			level = 2;
+   			d3.select("body")
+	            .select("#town")
+	            .style("display","none")
+	            	
+			d3.select("body").select("#province").style("display","block");
+	        linear = d3.scale.linear().domain([ini_min,ini_max]).range([0,1]);
+	        province.selectAll("path")
+	        	.attr("fill", function(d,i){
+			 		return color_province(linear(Math.random()*500));
+				})
+				.attr("class",function(d,i){
+					index++;
+					var res = "cla"+index;
+					return res;
+				});
+			indexMax = index + 1;
+			index = -1;	
+
+			document.getElementById("range").innerHTML = "范围：" + province.attr("name");
+			area = d3.select("#province").attr("name");
+	        
+	        if(state == 1)
+            {
+            	clearInterval(time);
+				state = 0;
+            }
+   		}
+
+
+   		connection.send({area:area,time:now,level:level,dimen:dimen});
+
+	}
+
+	function submit_dimen()
+	{
+		var radios = document.getElementById("dimen").weather;//获取id为list下的所有name为user的值的集合
+
+		for(var i=0;i<radios.length;i++){//循环值得集合
+			if(radios[i].checked){//通过checked属性判断是否被选中
+				dimen = radios[i].value//将被选择的radio的值赋给变量dimen
+				console.log(dimen);
+				break;
+			}
+		}
+		if(dimen == "wen")
+		{
+			color_country = color_red;
+			color_province = color_red;
+			color_town = color_red;
+			d3.select("#rect").style("fill","url(#red)")
+		}
+		else if(dimen == "jiang")
+		{
+			color_country = color_blue;
+			color_province = color_blue;
+			color_town = color_blue;
+			d3.select("#rect").style("fill","url(#blue)")
+		}
+		else if(dimen == "shi")
+		{
+			color_country = color_yellow;
+			color_province = color_yellow;
+			color_town = color_yellow;
+			d3.select("#rect").style("fill","url(#yellow)")
+		}
+		else if(dimen == "feng")
+		{
+			color_country = color_green;
+			color_province = color_green;
+			color_town = color_green;
+			d3.select("#rect").style("fill","url(#green)")
+		}
+		linear = d3.scale.linear().domain([ini_min,ini_max]).range([0,1]);
+		country.selectAll("path")
+	        .attr("fill", function(d,i){
+				return color_country(linear(Math.random()*500));
+			});
+		province.selectAll("path")
+	        .attr("fill", function(d,i){
+			 	return color_province(linear(Math.random()*500));
+			});
+		town.selectAll("path")
+	        .attr("fill", function(d,i){
+			 	return color_province(linear(Math.random()*500));
+			});
+
+		
+		connection.send({area:area,time:now,level:level,dimen:dimen});
+
+	}
+
+	function submit_step()
+	{
+		var radios = document.getElementById("step").time_step;//获取id为list下的所有name为user的值的集合
+
+		for(var i=0;i<radios.length;i++){//循环值得集合
+			if(radios[i].checked){//通过checked属性判断是否被选中
+				step = radios[i].value//将被选择的radio的值赋给变量dimen
+				console.log(step);
+				break;
+			}
+		}
+
+		now = last;
+		pass();
+		connection.send({area:area,time:now,level:level,dimen:dimen});
+	}
+
+	function pass()
+	{
+		last = now;
+		if(step == "hour"){
+			if((now % 100) == 23)
+				now += 77;
+			else
+				now += 1;
+		}
+		else if(step == "day")
+		{
+			now += 100;
+		}
+		console.log(now);
+		
+	}
+
+	function setTime()
+	{
+		var temHour = document.getElementById("set_hour").value;
+		var temDay = document.getElementById("set_day").value;
+		if(temDay == null && temHour == null)
+			;
+		else if(temDay == null)
+			now =  2015120100 + parseInt(temHour);
+		else if(temHour == null)
+			now =  2015120000 + parseInt(temDay)*100;
+		else
+			now =  2015120000 + parseInt(temDay)*100 +parseInt(temHour);
+		last = now;
+		document.getElementById("time").innerHTML = "时间：2015年 12月 " + parseInt(last/100)%100 + "日 "+ last%100 +"时";
+		connection.send({area:area,time:now,level:level,dimen:dimen});
+		
+	}
+
+</script>
+
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.poptrox.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/skel.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+			<script src="assets/js/main.js"></script>
+			<script src="assets/js/rangeslider.min.js"></script>
+
+	</body>
+</html>
